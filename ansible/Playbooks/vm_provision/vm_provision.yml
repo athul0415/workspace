@@ -1,0 +1,18 @@
+---
+
+- name: VM Provision using AWS CFT
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - /home/ubuntu/ansible/ansible_configs/aws_creds
+
+  roles:
+    - vm_provision
+
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ access_key }}"
+    AWS_SECRET_ACCESS_KEY: "{{ secret_key }}"
+    AWS_DEFAULT_REGION: "us-east-2"
+    #AWS_SECURITY_TOKEN: "{{ aws_session_token  }}"
+
+

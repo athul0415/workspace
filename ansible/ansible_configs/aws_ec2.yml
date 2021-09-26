@@ -1,0 +1,8 @@
+---
+#vars_files: /home/ubuntu/ansible/ansible_configs/aws_creds
+
+plugin: aws_ec2
+region: "us-east-2"
+filters:
+  tag:Stack:
+    - cft-stack1

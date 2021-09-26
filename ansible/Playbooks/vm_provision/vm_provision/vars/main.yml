@@ -1,0 +1,10 @@
+---
+# vars file for vm_provision
+
+stack_name: "cft-stack1"
+aws_image: "ami-00399ec92321828f5"
+aws_instancetype: "t2.micro"
+server_name: "server1"
+security_group: "sg-09b7ed465a3cf8fd8"
+aws_key_name: "athul_aws"
+subnet_id: "subnet-0d92a141"

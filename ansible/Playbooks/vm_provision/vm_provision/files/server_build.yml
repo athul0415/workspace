@@ -1,0 +1,42 @@
+---
+
+Parameters:
+  Image:
+    Description: "EC2 ami to be used"
+    Type: "AWS::EC2::Image::Id"
+  KeyPairName:
+    Description: "SSH Key to asign to the EC2 instances"
+    Type: "AWS::EC2::KeyPair::KeyName"
+  InstanceType:
+    Default: "t2.micro"
+    Description: "The instance type to be used"
+    Type: "String"
+  ServerName:
+    Description: "Full name of the server"
+    Type: "String"
+  DefaultSecurityGroup:
+    Description: "Default Security Group"
+    Type: "AWS::EC2::SecurityGroup::Id"
+  Subnet:
+    Description: "Subnet instance will reside in"
+    Type: "AWS::EC2::Subnet::Id"
+  StackName:
+    Description: "The instance type to be used"
+    Type: "String"
+
+Resources:
+  server1:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      ImageId: !Ref Image
+      KeyName: !Ref KeyPairName
+      InstanceType: !Ref InstanceType
+      Tags:
+        - Key: 'Stack'
+          Value: !Ref StackName
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          GroupSet:
+            - !Ref DefaultSecurityGroup
+          SubnetId: !Ref Subnet

@@ -1,0 +1,60 @@
+---
+# tasks file for vm_provision
+
+- name: Provisioning in AWS using cloudformation template
+  cloudformation:
+    stack_name: "{{ stack_name }}"
+    state: "present"
+    disable_rollback: false
+    on_create_failure: ROLLBACK
+    template: "/home/ubuntu/ansible/Playbooks/vm_provision/vm_provision/files/server_build.yml"
+    template_parameters:
+      Image: "{{ aws_image }}"
+      KeyPairName: "{{ aws_key_name }}"
+      InstanceType: "{{ aws_instancetype }}"
+      ServerName: "{{ server_name }}"
+      DefaultSecurityGroup: "{{ security_group }}"
+      Subnet: "{{ subnet_id }}"
+      StackName: "{{ stack_name }}"
+  register: stack_info
+
+- debug: var=stack_info
+
+- name: Get Instance ID
+  set_fact:
+    vm_id: "{{ stack_info.stack_resources[0].physical_resource_id }}"
+  when:
+    - stack_info.failed is defined and stack_info.failed == false 
+
+- name: Wait 30 seconds for the VM to start up
+  pause:
+    seconds: 30
+
+- name: Get VM details 
+  ec2_instance_info:
+    instance_ids: "{{ vm_id }}"
+  register: ec2_info
+  when:
+    - vm_id is defined
+
+- debug: var=ec2_info
+
+- name: Get Public IP of the VM
+  set_fact:
+    vm_ip: "{{ ec2_info.instances[0].public_ip_address }}"
+  when:
+    - ec2_info.failed is defined and ec2_info.failed ==  false
+
+- debug: var=vm_ip
+  when: vm_ip is defined
+
+- name: Generate dynamic inventory file of teh provisioned VM
+  copy:
+    dest: "/home/ubuntu/ansible/ansible_configs/inventory"
+    content: |
+      [aws_ec2]
+      {{ vm_ip }}
+  register: file_info
+  when: vm_ip is defined
+
+- debug: var=file_info
