@@ -1,31 +1,32 @@
 node {
   stage('Get Source') {
+    // copy source code from local file system and test
     // for a Dockerfile to build the Docker image
     git(url: 'https://github.com/athul0415/workspace.git', branch: 'main')
-    if (!fileExists("python_flask_app/Dockerfile")) {
+    if (!fileExists("node_app/Dockerfile")) {
       error('Dockerfile missing.')
     }
   }
   stage('Build Docker') {
-    dir("python_flask_app") {
+    dir("node_app") {
       // build the docker image from the source code using the BUILD_ID parameter in image name
-      sh "docker build -t flask-app ."
+      sh "docker build -t node-app ."
     }
   }
   stage("run docker container") {
-    sh "docker run -p 8000:8000 --name flask-app -d flask-app "
+    sh "docker run -p 3000:3000 --name node-app -d node-app"
     sleep 15
   }
   stage("Slack Notification") {
     try {
-      def output = sh(script: 'curl http://0.0.0.0:8000', returnStdout: true)
+      def output = sh(script: 'curl http://localhost:3000', returnStdout: true)
       if ( "${output}" == "Hello Airbus") {
         echo "Inside Success block"
-        slackSend channel: '#devops', message: 'Python Flask Application is Successfuly deployed', tokenCredentialId: 'slack_token', username: 'athul'
+        slackSend channel: '#devops', message: 'Nodejs Application is Successfuly deployed', tokenCredentialId: 'slack_token', username: 'athul'
       }
     } catch (Exception err) {
       echo err.getMessage()
-      slackSend channel: '#devops', message: 'Python Flask Application deployment Failed!!!', tokenCredentialId: 'slack_token', username: 'athul'
+      slackSend channel: '#devops', message: 'Nodejs Application deployment Failed!!!', tokenCredentialId: 'slack_token', username: 'athul'
       
     }
   }
