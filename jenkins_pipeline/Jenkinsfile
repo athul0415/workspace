@@ -1,0 +1,32 @@
+node {
+  stage('Get Source') {
+    // for a Dockerfile to build the Docker image
+    git(url: 'https://github.com/athul0415/workspace.git', branch: 'main')
+    if (!fileExists("python_flask_app/Dockerfile")) {
+      error('Dockerfile missing.')
+    }
+  }
+  stage('Build Docker') {
+    dir("python_flask_app") {
+      // build the docker image from the source code using the BUILD_ID parameter in image name
+      sh "docker build -t flask-app ."
+    }
+  }
+  stage("run docker container") {
+    sh "docker run -p 8000:8000 --name flask-app -d flask-app "
+    sleep 15
+  }
+  stage("Slack Notification") {
+    try {
+      def output = sh(script: 'curl http://0.0.0.0:8000', returnStdout: true)
+      if ( "${output}" == "Hello Airbus") {
+        echo "Inside Success block"
+        slackSend channel: '#devops', message: 'Python Flask Application is Successfuly deployed', tokenCredentialId: 'slack_token', username: 'athul'
+      }
+    } catch (Exception err) {
+      echo err.getMessage()
+      slackSend channel: '#devops', message: 'Python Flask Application deployment Failed!!!', tokenCredentialId: 'slack_token', username: 'athul'
+      
+    }
+  }
+}
