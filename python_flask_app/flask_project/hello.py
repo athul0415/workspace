@@ -1,16 +1,11 @@
 from flask import Flask
-from flask_classful import FlaskView
 
 app = Flask(__name__)
 
-class TestView(FlaskView):
+@app.route('/')
+def hello():
+    return "Hello Airbus"
 
-    def index(self):
-    # http://localhost:5000/
-        return "Welcome to Airbus"
 
-TestView.register(app,route_base = '/')
-
-if __name__ == '__main__':
-    #app.run(debug=True)
-    app.run(host='0.0.0.0', port=8000, debug=True)
+if __name__ == "__main__":
+    app.run(host ='0.0.0.0', port = 8000, debug = True)
