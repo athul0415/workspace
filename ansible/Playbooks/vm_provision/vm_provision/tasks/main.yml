@@ -58,3 +58,12 @@
   when: vm_ip is defined
 
 - debug: var=file_info
+
+
+- name: Add host to group 'linux'
+  add_host:
+    name: '{{ vm_ip }}'
+    groups: linux
+  register: add_host_status
+
+- debug: var=add_host_status

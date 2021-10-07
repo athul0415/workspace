@@ -14,5 +14,26 @@
     AWS_SECRET_ACCESS_KEY: "{{ secret_key }}"
     AWS_DEFAULT_REGION: "us-east-2"
     #AWS_SECURITY_TOKEN: "{{ aws_session_token  }}"
+  
+- name: Install Java and Jenkins on the Target Server
+  hosts: linux
+  environment:
+    ANSIBLE_HOST_KEY_CHECKING: False
+  pre_tasks:
+    - wait_for_connection:
+        timeout: 120
+      register: ssh_conn
+      ignore_errors: yes
+
+    - setup:
+      when: ssh_conn is success
+  gather_facts: yes
+  vars_files:
+    - /home/ubuntu/ansible/ansible_configs/group_vars/linux
+    - /home/ubuntu/ansible/ansible_configs/aws_creds
+
+  roles:
+    - install_java
+    - install_jenkins
 
 
